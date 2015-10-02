@@ -23,6 +23,8 @@ if   [[ -f ${CONFIG_PATH}/update-exim4.conf.conf ]] \
   && [[ ! -f ${CONFIG_PATH}/exim4.conf ]]
 then
     # run the debian utility to update/generate the configuration
+    LOCAL_IP_ADDR=$(grep "[ \t]*${HOSTNAME}[ \t]*" /etc/hosts|cut -f 1)
+    sed -i 's|dc_local_interfaces=.*|dc_local_interfaces='"'${LOCAL_IP_ADDR}'"'|' ${CONFIG_PATH}/update-exim4.conf.conf
     $(which update-exim4.conf) --verbose
 fi
 
