@@ -12,6 +12,10 @@ RUN apt-get update \
         openssl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
+    && mv /etc/aliases /etc/exim4/aliases \
+    && ln -s /etc/exim4/aliases /etc/aliases \
+    && mv /etc/email-addresses /etc/exim4/email-addresses \
+    && ln -s /etc/exim4/email-addresses /etc/email-addresses \
     && tar -cavf /demian.default.exim4.config.tar.gz -C /etc exim4 \
     && rm -rf /etc/exim4 /var/spool/exim4 /var/mail /var/log/exim4
 
