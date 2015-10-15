@@ -55,7 +55,7 @@ case ${1} in
     exim4)
         shift
         echo >&2 "starting exim4"
-        exec /usr/sbin/exim4 ${@:--bdf -q30m}
+        exec /usr/sbin/exim4 ${@:--bdf -d+all -q30m}
         ;;
 
     add_account)
