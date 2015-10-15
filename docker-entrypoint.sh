@@ -58,6 +58,25 @@ case ${1} in
         exec /usr/sbin/exim4 ${@:--bdf -q30m}
         ;;
 
+    add_account)
+        # Also can use:
+        # /usr/share/doc/exim4-base/examples/exim-adduser
+        shift
+        if [[ -z "${1}" ]] || [[ -z "${2}" ]]; then
+            echo >&2 "add_account requires a username and a password argument"
+            exit 1
+        fi
+        touch ${CONFIG_PATH}/passwd
+        chmod 640 ${CONFIG_PATH}/passwd
+        chown root:Debian-exim ${CONFIG_PATH}/passwd
+        # remove any occurance of username already in the passwd file
+        if grep -q "^${1}[:]" ${CONFIG_PATH}/passwd; then
+            sed -i "/^${1}[:].*$/d"  ${CONFIG_PATH}/passwd
+        fi
+        echo "${1}:$(echo "${2}"|mkpasswd -H md5 --stdin):${2}" >> ${CONFIG_PATH}/passwd
+        sort ${CONFIG_PATH}/passwd
+        ;;
+
     backup)
         cd ${CONFIG_PATH}
         /bin/tar \
