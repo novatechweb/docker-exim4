@@ -10,6 +10,7 @@ RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
         exim4-daemon-heavy \
         openssl \
+        spf-tools-perl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && mv /etc/aliases /etc/exim4/aliases \
