@@ -8,9 +8,14 @@ MAINTAINER Joseph Lutz <Joseph.Lutz@novatechweb.com>
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
+        dnsutils \
         exim4-daemon-heavy \
+        libnet-ssleay-perl \
+        mailutils \
         openssl \
         spf-tools-perl \
+        swaks \
+        whois \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && mv /etc/aliases /etc/exim4/aliases \
