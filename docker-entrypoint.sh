@@ -18,51 +18,46 @@ chown -R Debian-exim:Debian-exim /var/spool/exim4
 chown -R Debian-exim:adm /var/log/exim4
 chown -R root:mail /var/mail
 
-update_configuration() {
-    if   [[ -f ${CONFIG_PATH}/update-exim4.conf.conf ]] \
-      && [[ -f ${CONFIG_PATH}/exim4.conf.template ]] \
-      && [[ ! -f ${CONFIG_PATH}/exim4.conf ]]
-    then
-        # set the hostname
-        [ -e /etc/mailname ] \
-            && rm -rf /etc/mailname
-        echo "${HOSTNAME}" > /etc/mailname
-        # set local IP addr
-        LOCAL_IP_ADDR=$(grep "[ \t]*${HOSTNAME}[ \t]*" /etc/hosts|cut -f 1)
-        sed -i 's|dc_local_interfaces=.*|dc_local_interfaces='"'${LOCAL_IP_ADDR}'"'|' ${CONFIG_PATH}/update-exim4.conf.conf
-        # copy certificate
-        [ -e /etc/ssl/private/exim.crt ] \
-            && rm -f ${CONFIG_PATH}/exim.crt \
-            && cp $(realpath /etc/ssl/private/exim.crt) ${CONFIG_PATH}/exim.crt \
-            && chmod 640 ${CONFIG_PATH}/exim.crt \
-            && chown root:Debian-exim ${CONFIG_PATH}/exim.crt
-        # copy key
-        [ -e /etc/ssl/private/exim.key ] \
-            && rm -f ${CONFIG_PATH}/exim.key \
-            && cp $(realpath /etc/ssl/private/exim.key) ${CONFIG_PATH}/exim.key \
-            && chmod 640 ${CONFIG_PATH}/exim.key \
-            && chown root:Debian-exim ${CONFIG_PATH}/exim.key
-        # run the debian utility to update/generate the configuration
-        $(which update-exim4.conf) --verbose
-    fi
-    
-    # Check configuration
-    if ! /usr/sbin/exim4 -bV > /dev/null ; then
-      echo >&2 "Warning! Invalid configuration file for exim4. Exiting."
-      exit 1
-    fi
-}
-
 case ${1} in
     exim4)
-        update_configuration
+        if   [[ -f ${CONFIG_PATH}/update-exim4.conf.conf ]] \
+          && [[ -f ${CONFIG_PATH}/exim4.conf.template ]] \
+          && [[ ! -f ${CONFIG_PATH}/exim4.conf ]]
+        then
+            # set the hostname
+            [ -e /etc/mailname ] \
+                && rm -rf /etc/mailname
+            echo "${HOSTNAME}" > /etc/mailname
+            # set local IP addr
+            LOCAL_IP_ADDR=$(grep "[ \t]*${HOSTNAME}[ \t]*" /etc/hosts|cut -f 1)
+            sed -i 's|dc_local_interfaces=.*|dc_local_interfaces='"'${LOCAL_IP_ADDR}'"'|' ${CONFIG_PATH}/update-exim4.conf.conf
+            # copy certificate
+            [ -e /etc/ssl/private/exim.crt ] \
+                && rm -f ${CONFIG_PATH}/exim.crt \
+                && cp $(realpath /etc/ssl/private/exim.crt) ${CONFIG_PATH}/exim.crt \
+                && chmod 640 ${CONFIG_PATH}/exim.crt \
+                && chown root:Debian-exim ${CONFIG_PATH}/exim.crt
+            # copy key
+            [ -e /etc/ssl/private/exim.key ] \
+                && rm -f ${CONFIG_PATH}/exim.key \
+                && cp $(realpath /etc/ssl/private/exim.key) ${CONFIG_PATH}/exim.key \
+                && chmod 640 ${CONFIG_PATH}/exim.key \
+                && chown root:Debian-exim ${CONFIG_PATH}/exim.key
+            # run the debian utility to update/generate the configuration
+            $(which update-exim4.conf) --verbose
+        fi
+        
+        # Check configuration
+        if ! /usr/sbin/exim4 -bV > /dev/null ; then
+          echo >&2 "Warning! Invalid configuration file for exim4. Exiting."
+          exit 1
+        fi
         shift
         echo >&2 "starting exim4"
         exec /usr/sbin/exim4 ${@:--bdf -q30m}
         ;;
 
     add_account)
-        update_configuration
         # Also can use:
         # /usr/share/doc/exim4-base/examples/exim-adduser
         shift
@@ -108,7 +103,6 @@ case ${1} in
         ;;
 
     *)
-        update_configuration
         # run some other command in the docker container
         exec "$@"
         ;;
